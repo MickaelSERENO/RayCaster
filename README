@@ -55,3 +55,8 @@ lodepng.cpp/.h
 yaml/*
 :	Code for parsing YAML documents. Created by Jesse Beder, can be obtained 
 	from <http://code.google.com/p/yaml-cpp/>. See also yaml/license.txt.
+
+
+Project done by Linda Djerroudi, Stacy Gromat and Mickaël Sereno.
+
+The image generated for the 5th is img.png
