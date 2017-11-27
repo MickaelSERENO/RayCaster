@@ -18,6 +18,9 @@ Lights:
 - position: [-200,600,1500]
   color: [1.0,1.0,1.0]
 
+RenderMode: [zbuffer] 
+# phong zbuffer normal
+
 Objects:
 - type: sphere
   position: [90,320,100]

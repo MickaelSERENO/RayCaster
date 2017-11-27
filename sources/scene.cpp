@@ -38,39 +38,49 @@ Color Scene::trace(const Ray &ray)
     Vector N = min_hit.N;                          //the normal at hit point
     Vector V = -ray.D;                             //the view vector
 
+	Color color = Color(0.0, 0.0, 0.0);
 
-    /****************************************************
-    * This is where you should insert the color
-    * calculation (Phong model).
-    *
-    * Given: material, hit, N, V, lights[]
-    * Sought: color
-    *
-    * Hints: (see triple.h)
-    *        Triple.dot(Vector) dot product
-    *        Vector+Vector      vector sum
-    *        Vector-Vector      vector difference
-    *        Point-Point        yields vector
-    *        Vector.normalize() normalizes vector, returns length
-    *        double*Color        scales each color component (r,g,b)
-    *        Color*Color        dito
-    *        pow(a,b)           a to the power of b
-    ****************************************************/
+	if (mode == PHONG) {
+		/****************************************************
+		* This is where you should insert the color
+		* calculation (Phong model).
+		*
+		* Given: material, hit, N, V, lights[]
+		* Sought: color
+		*
+		* Hints: (see triple.h)
+		*        Triple.dot(Vector) dot product
+		*        Vector+Vector      vector sum
+		*        Vector-Vector      vector difference
+		*        Point-Point        yields vector
+		*        Vector.normalize() normalizes vector, returns length
+		*        double*Color        scales each color component (r,g,b)
+		*        Color*Color        dito
+		*        pow(a,b)           a to the power of b
+		****************************************************/
 
-    Color color = Color(0.0, 0.0, 0.0);
-	for(Light* l : lights)
-	{
-		Vector L = (l->position - hit).normalized();
-		Vector R = (2*L.dot(N)*N - L).normalized();
 		
-		double distance = (l->position - hit).length();
-		double intensity = 1.0f / (4*M_PI*distance*distance);
-		intensity = 1.0f;
+		for (Light* l : lights)
+		{
+			Vector L = (l->position - hit).normalized();
+			Vector R = (2 * L.dot(N)*N - L).normalized();
 
-		color += intensity * (
-					material->ka * material->color +
-					material->kd * fmax(0.0f, L.dot(N))*material->color +
-					material->ks * pow(fmax(0.0f, R.dot(V)), material->n)* l->color);
+			double distance = (l->position - hit).length();
+			double intensity = 1.0f / (4 * M_PI*distance*distance);
+			intensity = 1.0f;
+
+			color += intensity * (
+				material->ka * material->color +
+				material->kd * fmax(0.0f, L.dot(N))*material->color +
+				material->ks * pow(fmax(0.0f, R.dot(V)), material->n)* l->color);
+		}
+	}
+	else if (mode == ZBUFFER) {
+		double distance = (eye - hit).length();
+		color = Color(distance, distance, distance);
+	}
+	else if (mode == NORMAL) {
+
 	}
 
     return color;
@@ -78,6 +88,8 @@ Color Scene::trace(const Ray &ray)
 
 void Scene::render(Image &img)
 {
+	double zMax = std::numeric_limits<double>::min();
+	double zMin = std::numeric_limits<double>::max();
     int w = img.width();
     int h = img.height();
     for (int y = 0; y < h; y++) {
@@ -85,10 +97,33 @@ void Scene::render(Image &img)
             Point pixel(x+0.5, h-1-y+0.5, 0);
             Ray ray(eye, (pixel-eye).normalized());
             Color col = trace(ray);
-            col.clamp();
+
+			if (mode == PHONG) {
+				col.clamp();
+			}
+			else if (mode == ZBUFFER) {
+
+				if (col.x > zMax) {
+					zMax = col.x;
+				}
+				if (col.x < zMin && zMin != 0.0) {
+					zMin = col.x;
+				}
+			}
+
             img(x,y) = col;
         }
     }
+	if (mode == ZBUFFER && zMax != zMin) {
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				if(img(x, y).x == 0.0)
+					continue;
+				double colorDist = 1.0 - (img(x, y).x - zMin) / (zMax - zMin); //set in range and invert so the closer is the brighter
+				img(x, y) = Color(colorDist, colorDist, colorDist);
+			}
+		}
+	}
 }
 
 void Scene::addObject(Object *o)
@@ -104,4 +139,9 @@ void Scene::addLight(Light *l)
 void Scene::setEye(Triple e)
 {
     eye = e;
+}
+
+void Scene::setRenderMode(renderMode rm)
+{
+	mode = rm;
 }
