@@ -18,7 +18,7 @@ Lights:
 - position: [-200,600,1500]
   color: [1.0,1.0,1.0]
 
-RenderMode: [zbuffer] 
+RenderMode: [normal] 
 # phong zbuffer normal
 
 Objects:
@@ -68,7 +68,7 @@ Objects:
     ks: 0.5
     n: 32
 - type: cylinder
-  position: [290, 250, 230]
+  position: [250, 250, 450]
   radius: 20
   length: 100
   eulerAxis: [0.0, 1.0, 0.0]
@@ -79,6 +79,7 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
+
 - type: cube
   position: [210,270,300]
   length: 100

@@ -14,7 +14,9 @@
 
 #include "raytracer.h"
 #include "object.h"
+#include "cylinder.h"
 #include "sphere.h"
+#include "cube.h"
 #include "material.h"
 #include "light.h"
 #include "image.h"
@@ -69,6 +71,43 @@ Object* Raytracer::parseObject(const YAML::Node& node)
         Sphere *sphere = new Sphere(pos,r);		
         returnObject = sphere;
     }
+
+	else if (objectType == "cylinder")
+	{
+		Point pos;
+		node["position"] >> pos;
+		double r;
+		node["radius"] >> r;
+		Triple eulerAxis;
+		node["eulerAxis"] >> eulerAxis;
+		double eulerAngle;
+		node["eulerAngle"] >> eulerAngle;
+		double length;
+		node["length"] >> length;
+		Cylinder* cylinder = new Cylinder();
+		cylinder->position = pos;
+		cylinder->length   = length;
+		cylinder->rotation = Quaternion(eulerAxis, eulerAngle);
+		cylinder->radius   = r;
+		returnObject = cylinder;
+	}
+
+	else if (objectType == "cube")
+	{
+		Point pos;
+		node["position"] >> pos;
+		Triple eulerAxis;
+		node["eulerAxis"] >> eulerAxis;
+		double eulerAngle;
+		node["eulerAngle"] >> eulerAngle;
+		double length;
+		node["length"] >> length;
+		Cube* cube = new Cube();
+		cube->position = pos;
+		cube->length = length;
+		cube->rotation = Quaternion(eulerAxis, eulerAngle);
+		returnObject = cube;
+	}
 
     if (returnObject) {
         // read the material and attach to object

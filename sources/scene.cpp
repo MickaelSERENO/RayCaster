@@ -75,12 +75,18 @@ Color Scene::trace(const Ray &ray)
 				material->ks * pow(fmax(0.0f, R.dot(V)), material->n)* l->color);
 		}
 	}
-	else if (mode == ZBUFFER) {
+	else if (mode == ZBUFFER) 
+	{
 		double distance = (eye - hit).length();
+		if (isinf(distance))
+		{
+			std::cout << "finite distance" << std::endl;
+		}
 		color = Color(distance, distance, distance);
 	}
-	else if (mode == NORMAL) {
-
+	else if (mode == NORMAL) 
+	{
+		color = Color((1.0+N.x)/2.0, (1.0+N.y)/2.0, (1.0+N.z)/2.0);
 	}
 
     return color;
@@ -88,7 +94,7 @@ Color Scene::trace(const Ray &ray)
 
 void Scene::render(Image &img)
 {
-	double zMax = std::numeric_limits<double>::min();
+	double zMax = 0.0;
 	double zMin = std::numeric_limits<double>::max();
     int w = img.width();
     int h = img.height();
@@ -98,15 +104,17 @@ void Scene::render(Image &img)
             Ray ray(eye, (pixel-eye).normalized());
             Color col = trace(ray);
 
-			if (mode == PHONG) {
+			if (mode == PHONG) 
+			{
 				col.clamp();
 			}
+
 			else if (mode == ZBUFFER) {
 
 				if (col.x > zMax) {
 					zMax = col.x;
 				}
-				if (col.x < zMin && zMin != 0.0) {
+				if (col.x < zMin && col.x != 0.0) {
 					zMin = col.x;
 				}
 			}
@@ -114,10 +122,12 @@ void Scene::render(Image &img)
             img(x,y) = col;
         }
     }
+
+	//Readapt the range of colors
 	if (mode == ZBUFFER && zMax != zMin) {
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
-				if(img(x, y).x == 0.0)
+				if(img(x, y).x == 0.0) //object not found
 					continue;
 				double colorDist = 1.0 - (img(x, y).x - zMin) / (zMax - zMin); //set in range and invert so the closer is the brighter
 				img(x, y) = Color(colorDist, colorDist, colorDist);

@@ -60,3 +60,4 @@ yaml/*
 Project done by Linda Djerroudi, Stacy Gromat and Mickaël Sereno.
 
 The image generated for the 5th is img.png
+Launch "runme.bat" tu run the project. It will read "scene01.yaml" and generate "img.png". You can also run "Debug/RayTracer.exe" with the common parameters
