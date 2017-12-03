@@ -17,9 +17,9 @@ Quaternion::Quaternion(const Triple& euler, double angle)
 	Triple e = euler.normalized();
 
 	a = cos(angle / 2);
-	b = sin(angle / 2) * cos(e.x);
-	c = sin(angle / 2) * cos(e.y);
-	d = sin(angle / 2) * cos(e.z);
+	b = sin(angle / 2) * e.x;
+	c = sin(angle / 2) * e.y;
+	d = sin(angle / 2) * e.z;
 }
 
 Quaternion Quaternion::inverse()
