@@ -40,13 +40,16 @@ private:
     std::vector<Light*> lights;
     Triple eye;
 	renderMode mode;
+	bool drawShadow;
 public:
+	Object* findHit(const Ray& ray, Hit& hit);
     Color trace(const Ray &ray);
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);
     void setEye(Triple e);
 	void setRenderMode(renderMode rm);
+	void setDrawShadow(bool ds);
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
 };

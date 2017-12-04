@@ -126,6 +126,10 @@ Light* Raytracer::parseLight(const YAML::Node& node)
     return new Light(position,color);
 }
 
+bool Raytracer::parseShadow(const YAML::Node& node) {
+	return node[0];
+}
+
 renderMode Raytracer::parseRenderMode(const YAML::Node & node)
 {
 	std::string rm;
@@ -167,6 +171,9 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
             // Read scene configuration options
             scene->setEye(parseTriple(doc["Eye"]));
+
+			//Read shadow mode
+			scene->setDrawShadow(parseShadow(doc["Shadows"]));
 
 			//Read scene Render Mode
 			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));

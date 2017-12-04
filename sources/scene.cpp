@@ -17,19 +17,26 @@
 #include "scene.h"
 #include "material.h"
 
+Object* Scene::findHit(const Ray& ray, Hit& hit)
+{
+	// Find hit object and distance
+	hit = Hit(std::numeric_limits<double>::infinity(), Vector());
+	Object *obj = NULL;
+	for (unsigned int i = 0; i < objects.size(); ++i) {
+		Hit tempHit(objects[i]->intersect(ray));
+		if (tempHit.t<hit.t) {
+			hit = tempHit;
+			obj = objects[i];
+		}
+	}
+
+	return obj;
+}
+
 Color Scene::trace(const Ray &ray)
 {
-    // Find hit object and distance
-    Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
-    Object *obj = NULL;
-    for (unsigned int i = 0; i < objects.size(); ++i) {
-        Hit hit(objects[i]->intersect(ray));
-        if (hit.t<min_hit.t) {
-            min_hit = hit;
-            obj = objects[i];
-        }
-    }
-
+	Hit min_hit(std::numeric_limits<double>::infinity(), Vector());
+	Object* obj = findHit(ray, min_hit);
     // No hit? Return background color.
     if (!obj) return Color(0.0, 0.0, 0.0);
 
@@ -59,18 +66,30 @@ Color Scene::trace(const Ray &ray)
 		*        pow(a,b)           a to the power of b
 		****************************************************/
 
+		color += material->ka * material->color;
 		
 		for (Light* l : lights)
 		{
+
 			Vector L = (l->position - hit).normalized();
 			Vector R = (2 * L.dot(N)*N - L).normalized();
+			if (drawShadow)
+			{
+				Ray rayToLight(hit, L);
+				Hit hitToLight(std::numeric_limits<double>::infinity(), Vector());
+				Object* objToLight = findHit(rayToLight, hitToLight);
+				if (objToLight)
+				{
+					continue;
+				}
+
+			}
 
 			double distance = (l->position - hit).length();
 			double intensity = 1.0f / (4 * M_PI*distance*distance);
 			intensity = 1.0f;
 
 			color += intensity * (
-				material->ka * material->color +
 				material->kd * fmax(0.0f, L.dot(N))*material->color +
 				material->ks * pow(fmax(0.0f, R.dot(V)), material->n)* l->color);
 		}
@@ -154,4 +173,9 @@ void Scene::setEye(Triple e)
 void Scene::setRenderMode(renderMode rm)
 {
 	mode = rm;
+}
+
+void Scene::setDrawShadow(bool ds)
+{
+	drawShadow = ds;
 }
