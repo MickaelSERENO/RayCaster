@@ -66,7 +66,7 @@ Color Scene::trace(const Ray &ray)
 		*        pow(a,b)           a to the power of b
 		****************************************************/
 
-		color += material->ka * material->color;
+		
 		
 		for (Light* l : lights)
 		{
@@ -78,7 +78,7 @@ Color Scene::trace(const Ray &ray)
 				Ray rayToLight(hit, L);
 				Hit hitToLight(std::numeric_limits<double>::infinity(), Vector());
 				Object* objToLight = findHit(rayToLight, hitToLight);
-				if (objToLight)
+				if(objToLight && (hit-ray.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
 				{
 					continue;
 				}
@@ -90,6 +90,7 @@ Color Scene::trace(const Ray &ray)
 			intensity = 1.0f;
 
 			color += intensity * (
+				material->ka * material->color +
 				material->kd * fmax(0.0f, L.dot(N))*material->color +
 				material->ks * pow(fmax(0.0f, R.dot(V)), material->n)* l->color);
 		}
