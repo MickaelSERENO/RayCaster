@@ -1,6 +1,6 @@
 *.o
 *.png
 ray
-binaries/*
+Binaries/*
 Debug
 Release

@@ -149,26 +149,40 @@ void Scene::render(Image &img)
     int h = img.height();
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
-            Point pixel(x+0.5, h-1-y+0.5, 0);
-            Ray ray(eye, (pixel-eye).normalized());
-            Color col = trace(ray);
 
-			if (mode == PHONG) 
+			Color pixColor(0, 0, 0);
+			int N = 2;
+			for (int y1 = 0; y1 < N; y1++)
 			{
-				col.clamp();
+				for (int x1 = 0; x1 < N; x1++)
+				{
+
+					Point pixel((x - 1 / (2 * N) + (x1 + 1) / N), (y - 1 / (2 * N) + (y1 + 1) / N));
+					Ray ray(eye, (pixel - eye).normalized());
+					Color col = trace(ray);
+
+					if (mode == PHONG)
+					{
+						col.clamp();
+					}
+
+					else if (mode == ZBUFFER) {
+
+						if (col.x > zMax) {
+							zMax = col.x;
+						}
+						if (col.x < zMin && col.x != 0.0) {
+							zMin = col.x;
+						}
+					}
+
+					pixColor = pixColor + col;
+				}
 			}
 
-			else if (mode == ZBUFFER) {
+			pixColor = pixColor / N;
 
-				if (col.x > zMax) {
-					zMax = col.x;
-				}
-				if (col.x < zMin && col.x != 0.0) {
-					zMin = col.x;
-				}
-			}
-
-            img(x,y) = col;
+            img(x,y) = pixColor;
         }
     }
 
