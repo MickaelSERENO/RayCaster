@@ -24,7 +24,8 @@ Object* Scene::findHit(const Ray& ray, Hit& hit)
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
 		Hit tempHit(objects[i]->intersect(ray));
-		if (tempHit.t<hit.t) {
+		if (tempHit.t<hit.t && tempHit.N.dot(-ray.D) >= 0)
+		{
 			hit = tempHit;
 			obj = objects[i];
 		}
@@ -65,43 +66,14 @@ Color Scene::trace(const Ray &ray)
 		*        Color*Color        dito
 		*        pow(a,b)           a to the power of b
 		****************************************************/
-
-		
-		
-		for (Light* l : lights)
-		{
-
-			Vector L = (l->position - hit).normalized();
-			Vector R = (2 * L.dot(N)*N - L).normalized();
-			if (drawShadow)
-			{
-				Ray rayToLight(hit, L);
-				Hit hitToLight(std::numeric_limits<double>::infinity(), Vector());
-				Object* objToLight = findHit(rayToLight, hitToLight);
-				if(objToLight && (hit-ray.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
-				{
-					continue;
-				}
-
-			}
-
-			double distance = (l->position - hit).length();
-			double intensity = 1.0f / (4 * M_PI*distance*distance);
-			intensity = 1.0f;
-
-			color += intensity * (
-				material->ka * material->color +
-				material->kd * fmax(0.0f, L.dot(N))*material->color +
-				material->ks * pow(fmax(0.0f, R.dot(V)), material->n)* l->color);
-		}
+		color = phong(material, V, N, hit);
+		Vector reflect = (ray.D -2 * ray.D.dot(N)*N).normalized();
+		color += recursionColor(Ray(hit, reflect), maxRecursionDepth) * material->ks;
 	}
+
 	else if (mode == ZBUFFER) 
 	{
 		double distance = (eye - hit).length();
-		if (isinf(distance))
-		{
-			std::cout << "finite distance" << std::endl;
-		}
 		color = Color(distance, distance, distance);
 	}
 	else if (mode == NORMAL) 
@@ -110,6 +82,63 @@ Color Scene::trace(const Ray &ray)
 	}
 
     return color;
+}
+
+Color Scene::recursionColor(const Ray& ray, int recursion)
+{
+	if (recursion <= 0)
+		return Color(0.0, 0.0, 0.0);
+	Hit min_hit(std::numeric_limits<double>::infinity(), Vector());
+	Object* obj = findHit(ray, min_hit);
+
+	// No hit? Return background color.
+	if (!obj) return Color(0.0, 0.0, 0.0);
+
+	Point hit = ray.at(min_hit.t);                 //the hit point
+	Vector N = min_hit.N;                          //the normal at hit point
+	Vector V = -ray.D;                             //the view vector
+
+	Vector reflect = (-2 * ray.D.dot(N)*N + ray.D).normalized();
+	Color color = phong(obj->material, V, N, hit);
+	
+	if (recursion == 1)
+		return color;
+    return color + obj->material->ks * recursionColor(Ray(hit, reflect), recursion - 1);
+}
+
+Color Scene::phong(const Material* material, const Vector& V, const Vector& N, const Point& hit)
+{
+	Color color(0.0, 0.0, 0.0);
+	//Compute phong
+	for (Light* l : lights)
+	{
+
+		Vector L = (l->position - hit).normalized();
+		Vector R = (2 * L.dot(N)*N - L).normalized();
+
+		double distance = (l->position - hit).length();
+		double intensity = 1.0f / (4 * M_PI*distance*distance);
+		intensity = 1.0f;
+
+		if (drawShadow)
+		{
+			Ray rayToLight(hit, L);
+			Hit hitToLight(std::numeric_limits<double>::infinity(), Vector());
+			Object* objToLight = findHit(rayToLight, hitToLight);
+			
+			if (objToLight && (hit - rayToLight.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
+			{
+				color += intensity * l->color * material->ka * material->color;
+				continue;
+			}
+		}
+
+		color += intensity * l->color * (
+			material->ka * material->color +
+			material->kd * fmax(0.0f, L.dot(N))*material->color +
+			material->ks * pow(fmax(0.0f, R.dot(V)), material->n));
+	}
+	return color;
 }
 
 void Scene::render(Image &img)
@@ -179,4 +208,9 @@ void Scene::setRenderMode(renderMode rm)
 void Scene::setDrawShadow(bool ds)
 {
 	drawShadow = ds;
+}
+
+void Scene::setMaxRecursionDepth(int depth)
+{
+	maxRecursionDepth = depth;
 }

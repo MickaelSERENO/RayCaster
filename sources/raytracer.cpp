@@ -178,6 +178,8 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			//Read scene Render Mode
 			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
 
+			scene->setMaxRecursionDepth(doc["MaxRecursionDepth"][0]);
+
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];
             if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {

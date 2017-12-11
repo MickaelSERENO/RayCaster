@@ -111,13 +111,13 @@
     <ClCompile Include="yaml\stream.cpp">
       <Filter>yaml</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cube.cpp">
+    <ClCompile Include="cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cylinder.cpp">
+    <ClCompile Include="cylinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\quaternion.cpp">
+    <ClCompile Include="quaternion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -263,13 +263,13 @@
     <ClInclude Include="yaml\yaml.h">
       <Filter>yaml</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cube.h">
+    <ClInclude Include="cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cylinder.h">
+    <ClInclude Include="cylinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\quaternion.h">
+    <ClInclude Include="quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

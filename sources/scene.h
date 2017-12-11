@@ -41,15 +41,19 @@ private:
     Triple eye;
 	renderMode mode;
 	bool drawShadow;
+	int maxRecursionDepth=2;
 public:
 	Object* findHit(const Ray& ray, Hit& hit);
     Color trace(const Ray &ray);
+	Color recursionColor(const Ray& ray, int recursion);
+	Color phong(const Material* material, const Vector& V, const Vector& N, const Point& hit);
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);
     void setEye(Triple e);
 	void setRenderMode(renderMode rm);
 	void setDrawShadow(bool ds);
+	void setMaxRecursionDepth(int d);
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
 };

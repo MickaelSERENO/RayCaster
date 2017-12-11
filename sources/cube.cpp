@@ -22,13 +22,13 @@ Hit Cube::intersect(const Ray& ray)
 	//We will use 6 planars intersections
 	//Top and bottom
 	tTop = planeIntersection(ray, topPos, topDir, topDir, rightDir, frontDir, TOP);
-	if (tTop >= 0)
+	if (tTop > 0)
 	{
 		t = tTop;
 		N = topDir;
 	}
 	tBottom = planeIntersection(ray, botPos, -topDir, topDir, rightDir, frontDir, BOTTOM);
-	if (tBottom >= 0 && (t < 0 || tBottom < t))
+	if (tBottom > 0 && (t < 0 || tBottom < t))
 	{
 		t = tBottom;
 		N = -topDir;
@@ -36,13 +36,13 @@ Hit Cube::intersect(const Ray& ray)
 
 	//Left and right
 	tLeft = planeIntersection(ray, leftPos, -rightDir, topDir, rightDir, frontDir, LEFT);
-	if (tLeft >= 0 && (t < 0 || tLeft < t))
+	if (tLeft > 0 && (t < 0 || tLeft < t))
 	{
 		t = tLeft;
 		N = -rightDir;
 	}
 	tRight = planeIntersection(ray, rightPos, rightDir, topDir, rightDir, frontDir, RIGHT);
-	if (tRight >= 0 && (t < 0 || tRight < t))
+	if (tRight > 0 && (t < 0 || tRight < t))
 	{
 		t = tRight;
 		N = rightDir;
@@ -50,19 +50,19 @@ Hit Cube::intersect(const Ray& ray)
 
 	//back and front
 	tBack = planeIntersection(ray, backPos, -frontDir, topDir, rightDir, frontDir, BACK);
-	if (tBack >= 0 && (t < 0 || tBack < t))
+	if (tBack > 0 && (t < 0 || tBack < t))
 	{
 		t = tBack;
 		N = -frontDir;
 	}
 	tFront = planeIntersection(ray, frontPos, frontDir, topDir, rightDir, frontDir, FRONT);
-	if (tFront >= 0 && (t < 0 || tFront < t))
+	if (tFront > 0 && (t < 0 || tFront < t))
 	{
 		t = tFront;
 		N = frontDir;
 	}
 
-	if (t < 0)
+	if (t <= 0)
 		return Hit::NO_HIT();
 	return Hit(t, N);
 }
@@ -74,7 +74,7 @@ double Cube::planeIntersection(const Ray& ray, const Triple& p0, const Triple& N
 	if (DdotN != 0)
 		t = (p0 - ray.O).dot(N) / DdotN;
 
-	if (t < 0)
+	if (t <= 0)
 		return -1;
 
 	Triple p       = ray.O + t*ray.D - p0;

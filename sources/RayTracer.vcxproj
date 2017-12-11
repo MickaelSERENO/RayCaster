@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -13,16 +13,17 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7FCED6CA-38E1-4F62-B84A-37CEA310A250}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -85,14 +86,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cube.cpp" />
-    <ClCompile Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cylinder.cpp" />
-    <ClCompile Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\quaternion.cpp" />
+    <ClCompile Include="cube.cpp" />
+    <ClCompile Include="cylinder.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
+    <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="sphere.cpp" />
@@ -121,14 +122,14 @@
     <ClCompile Include="yaml\stream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cube.h" />
-    <ClInclude Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\cylinder.h" />
-    <ClInclude Include="..\..\..\..\..\Polytech%27 Paris Sud\M2\Graphic\RayCaster\sources\quaternion.h" />
+    <ClInclude Include="cube.h" />
+    <ClInclude Include="cylinder.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="object.h" />
+    <ClInclude Include="quaternion.h" />
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="sphere.h" />
