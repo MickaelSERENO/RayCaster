@@ -147,18 +147,16 @@ void Scene::render(Image &img)
 	double zMin = std::numeric_limits<double>::max();
     int w = img.width();
     int h = img.height();
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
+    for (int y = 0; y < camera->getHeight(); y++) {
+        for (int x = 0; x < camera->getWidth(); x++) {
 
 			Color pixColor(0, 0, 0);
-			int N = 2;
+			int N = superSamples;
 			for (int y1 = 0; y1 < N; y1++)
 			{
 				for (int x1 = 0; x1 < N; x1++)
 				{
-
-					Point pixel((x - 1 / (2 * N) + (x1 + 1) / N), (y - 1 / (2 * N) + (y1 + 1) / N));
-					Ray ray(eye, (pixel - eye).normalized());
+					Ray ray = camera->castRay((x - 1.0 / (2.0 * N) + (x1 + 1.0) / N), (y - 1.0 / (2.0 * N) + (y1 + 1.0) / N));
 					Color col = trace(ray);
 
 					if (mode == PHONG)
@@ -180,7 +178,7 @@ void Scene::render(Image &img)
 				}
 			}
 
-			pixColor = pixColor / N;
+			pixColor = pixColor / (N*N);
 
             img(x,y) = pixColor;
         }

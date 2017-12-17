@@ -148,6 +148,25 @@ renderMode Raytracer::parseRenderMode(const YAML::Node & node)
 	}
 }
 
+Camera* Raytracer::parseCamera(const YAML::Node& node)
+{
+	Vector up;
+	Point eye;
+	Point center;
+	int width;
+	int height;
+	double focalDistance;
+
+	node["up"]            >> up;
+	node["eye"]           >> eye;
+	node["center"]        >> center;
+	node["width"]         >> width;
+	node["height"]        >> height;
+	node["focalDistance"] >> focalDistance;
+
+	return new Camera(eye, center, up, focalDistance, width, height);
+}
+
 /*
 * Read a scene from file
 */
@@ -170,7 +189,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
             parser.GetNextDocument(doc);
 
             // Read scene configuration options
-            scene->setEye(parseTriple(doc["Eye"]));
+            //scene->setEye(parseTriple(doc["Eye"]));
 
 			//Read shadow mode
 			scene->setDrawShadow(parseShadow(doc["Shadows"]));
@@ -179,6 +198,10 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
 
 			scene->setMaxRecursionDepth(doc["MaxRecursionDepth"][0]);
+
+			scene->setSupersample(doc["SuperSampling"][0]);
+
+			scene->setCamera(parseCamera(doc["Camera"]));
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];
@@ -220,7 +243,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 void Raytracer::renderToFile(const std::string& outputFilename)
 {
-    Image img(400,400);
+    Image img(scene->getCamera()->getWidth(), scene->getCamera()->getHeight());
     cout << "Tracing..." << endl;
     scene->render(img);
     cout << "Writing image to " << outputFilename << "..." << endl;

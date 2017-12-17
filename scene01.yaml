@@ -12,19 +12,29 @@
 #  The example scene description should largely speak for itself. By now
 #  it should be clear that the #-character can be used to insert comments.
 
-Eye: [200,200,1000]  
+Camera:
+  eye: [200,600,500]  
+  center: [200,200,0]
+  up: [0,1.0,0.0]
+  focalDistance: 500.0
+  width: 1280
+  height: 720
 
 Shadows: [true]
 
+SuperSampling: [4]
+
 Lights:
 - position: [-200,600,1500]
-  color: [0.4,0.4,0.8]
+  color: [1.0,1.0,1.0]
 - position: [-200,600,0]
   color: [1.0,1.0,1.0]
 - position: [800,600,0]
   color: [1.0,1.0,1.0]
 
+  
 MaxRecursionDepth: [2]
+
 
 RenderMode: [phong] 
 # phong zbuffer normal

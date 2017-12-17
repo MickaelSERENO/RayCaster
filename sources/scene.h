@@ -22,6 +22,7 @@
 #include "light.h"
 #include "object.h"
 #include "image.h"
+#include "Camera.h"
 
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846
@@ -40,8 +41,10 @@ private:
     std::vector<Light*> lights;
     Triple eye;
 	renderMode mode;
-	bool drawShadow;
-	int maxRecursionDepth=2;
+	bool drawShadow = false;
+	int maxRecursionDepth=0;
+	int superSamples = 1;
+	Camera* camera = NULL;
 public:
 	Object* findHit(const Ray& ray, Hit& hit);
     Color trace(const Ray &ray);
@@ -54,6 +57,9 @@ public:
 	void setRenderMode(renderMode rm);
 	void setDrawShadow(bool ds);
 	void setMaxRecursionDepth(int d);
+	void setSupersample(int s) { superSamples = s; }
+	void setCamera(Camera* c) { camera = c; }
+	Camera* getCamera() { return camera; }
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
 };
