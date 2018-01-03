@@ -18,6 +18,7 @@
 #define SPHERE_H_115209AE
 
 #include "object.h"
+#define M_PI 3.14159265
 
 class Sphere : public Object
 {
@@ -25,7 +26,7 @@ public:
     Sphere(Point position,double r) : position(position), r(r) { }
 
     virtual Hit intersect(const Ray &ray);
-
+	virtual Color getTextureColor(const Point& p) const;
     const Point position;
     const double r;
 };

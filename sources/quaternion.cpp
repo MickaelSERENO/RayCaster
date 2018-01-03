@@ -22,7 +22,7 @@ Quaternion::Quaternion(const Triple& euler, double angle)
 	d = sin(angle / 2) * e.z;
 }
 
-Quaternion Quaternion::inverse()
+Quaternion Quaternion::inverse() const
 {
 	return Quaternion(a, -b, -c, -d);
 }

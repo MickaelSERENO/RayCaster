@@ -66,7 +66,7 @@ Color Scene::trace(const Ray &ray)
 		*        Color*Color        dito
 		*        pow(a,b)           a to the power of b
 		****************************************************/
-		color = phong(material, V, N, hit);
+		color = phong(obj, V, N, hit);
 		Vector reflect = (ray.D -2 * ray.D.dot(N)*N).normalized();
 		color += recursionColor(Ray(hit, reflect), maxRecursionDepth) * material->ks;
 	}
@@ -99,16 +99,17 @@ Color Scene::recursionColor(const Ray& ray, int recursion)
 	Vector V = -ray.D;                             //the view vector
 
 	Vector reflect = (-2 * ray.D.dot(N)*N + ray.D).normalized();
-	Color color = phong(obj->material, V, N, hit);
+	Color color = phong(obj, V, N, hit);
 	
 	if (recursion == 1)
 		return color;
     return color + obj->material->ks * recursionColor(Ray(hit, reflect), recursion - 1);
 }
 
-Color Scene::phong(const Material* material, const Vector& V, const Vector& N, const Point& hit)
+Color Scene::phong(const Object* obj, const Vector& V, const Vector& N, const Point& hit)
 {
 	Color color(0.0, 0.0, 0.0);
+	Material* material = obj->material;
 	//Compute phong
 	for (Light* l : lights)
 	{
@@ -120,6 +121,8 @@ Color Scene::phong(const Material* material, const Vector& V, const Vector& N, c
 		double intensity = 1.0f / (4 * M_PI*distance*distance);
 		intensity = 1.0f;
 
+		Color objColor = obj->getColorAt(hit);
+
 		if (drawShadow)
 		{
 			Ray rayToLight(hit, L);
@@ -128,14 +131,14 @@ Color Scene::phong(const Material* material, const Vector& V, const Vector& N, c
 			
 			if (objToLight && (hit - rayToLight.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
 			{
-				color += intensity * l->color * material->ka * material->color;
+				color += intensity * l->color * material->ka * objColor;
 				continue;
 			}
 		}
 
 		color += intensity * l->color * (
-			material->ka * material->color +
-			material->kd * fmax(0.0f, L.dot(N))*material->color +
+			material->ka * objColor +
+			material->kd * fmax(0.0f, L.dot(N))*objColor +
 			material->ks * pow(fmax(0.0f, R.dot(V)), material->n));
 	}
 	return color;
@@ -147,6 +150,8 @@ void Scene::render(Image &img)
 	double zMin = std::numeric_limits<double>::max();
     int w = img.width();
     int h = img.height();
+
+	#pragma omp parallel for
     for (int y = 0; y < camera->getHeight(); y++) {
         for (int x = 0; x < camera->getWidth(); x++) {
 

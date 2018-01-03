@@ -105,3 +105,8 @@ double Cube::planeIntersection(const Ray& ray, const Triple& p0, const Triple& N
 
 	return t;
 }
+
+Color Cube::getTextureColor(const Point& p) const
+{
+	return Color(0, 0, 0);
+}

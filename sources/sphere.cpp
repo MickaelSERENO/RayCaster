@@ -66,3 +66,20 @@ Hit Sphere::intersect(const Ray &ray)
 
     return Hit(t,N);
 }
+
+Color Sphere::getTextureColor(const Point& p) const
+{
+	//Transform the point into sphere coordinate system
+	Point pRef = p - position;
+	Point afterRot = rotation.inverse() * pRef;
+	
+	double pRadius = afterRot.length();
+	if (pRadius == 0)
+		return Color(0, 0, 0);
+
+	double phi = acos(afterRot.x / pRadius) / M_PI; //Phi between 0 and 1
+	double theta = (atan2(afterRot.y, afterRot.x) + M_PI) / (2 * M_PI);
+
+	Color c = material->texture->colorAt(theta, phi);
+	return c;
+}

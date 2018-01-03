@@ -14,7 +14,7 @@ public:
 	Quaternion(double q0, double q1, double q2, double q3);
 	Quaternion(const Triple& axis, double angle);
 
-	Quaternion inverse();
+	Quaternion inverse() const;
 	double a, b, c, d;
 };
 

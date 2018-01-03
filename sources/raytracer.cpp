@@ -49,7 +49,18 @@ Triple parseTriple(const YAML::Node& node)
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
     Material *m = new Material();
-    node["color"] >> m->color;	
+	
+	//Test if the material contain a texture or not
+	const YAML::Node*texture = node.FindValue("texture");
+	if (!texture)
+		node["color"] >> m->color;
+	else
+	{
+		std::string texturePath;
+		node["texture"] >> texturePath;
+		std::cout << "texture found : " << texturePath << std::endl;
+		m->texture = new Image(texturePath.c_str());
+	}	
     node["ka"] >> m->ka;
     node["kd"] >> m->kd;
     node["ks"] >> m->ks;
@@ -78,16 +89,11 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["position"] >> pos;
 		double r;
 		node["radius"] >> r;
-		Triple eulerAxis;
-		node["eulerAxis"] >> eulerAxis;
-		double eulerAngle;
-		node["eulerAngle"] >> eulerAngle;
 		double length;
 		node["length"] >> length;
 		Cylinder* cylinder = new Cylinder();
 		cylinder->position = pos;
 		cylinder->length   = length;
-		cylinder->rotation = Quaternion(eulerAxis, eulerAngle);
 		cylinder->radius   = r;
 		returnObject = cylinder;
 	}
@@ -95,21 +101,28 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 	else if (objectType == "cube")
 	{
 		Point pos;
-		node["position"] >> pos;
-		Triple eulerAxis;
-		node["eulerAxis"] >> eulerAxis;
-		double eulerAngle;
-		node["eulerAngle"] >> eulerAngle;
 		double length;
+		node["position"] >> pos;
 		node["length"] >> length;
 		Cube* cube = new Cube();
 		cube->position = pos;
 		cube->length = length;
-		cube->rotation = Quaternion(eulerAxis, eulerAngle);
 		returnObject = cube;
 	}
 
-    if (returnObject) {
+    if (returnObject) 
+	{
+		//Handle the rotation
+		const YAML::Node* eulerAxisNode = node.FindValue("eulerAxis");
+		if (eulerAxisNode)
+		{
+			Triple eulerAxis;
+			node["eulerAxis"] >> eulerAxis;
+			double eulerAngle;
+			node["eulerAngle"] >> eulerAngle;
+			returnObject->rotation = Quaternion(eulerAxis, eulerAngle);
+		}
+
         // read the material and attach to object
         returnObject->material = parseMaterial(node["material"]);
     }

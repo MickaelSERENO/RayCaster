@@ -99,3 +99,8 @@ Hit Cylinder::intersect(const Ray& ray)
 
 	return Hit(t, N);
 }
+
+Color Cylinder::getTextureColor(const Point& p) const
+{
+	return Color(0, 0, 0);
+}

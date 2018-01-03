@@ -23,6 +23,7 @@
 #include "object.h"
 #include "image.h"
 #include "Camera.h"
+#include <omp.h>
 
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846
@@ -49,7 +50,7 @@ public:
 	Object* findHit(const Ray& ray, Hit& hit);
     Color trace(const Ray &ray);
 	Color recursionColor(const Ray& ray, int recursion);
-	Color phong(const Material* material, const Vector& V, const Vector& N, const Point& hit);
+	Color phong(const Object* obj, const Vector& V, const Vector& N, const Point& hit);
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);

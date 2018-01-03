@@ -19,16 +19,26 @@
 
 #include "triple.h"
 #include "light.h"
-
-class Material;
+#include "material.h"
+#include "quaternion.h"
 
 class Object {
 public:
     Material *material;
+	Quaternion rotation;
 
     virtual ~Object() { }
 
     virtual Hit intersect(const Ray &ray) = 0;
+	
+	virtual Color getColorAt(const Point& p) const
+	{
+		if (material->texture)
+			return getTextureColor(p);
+		return material->color;
+	}
+
+	virtual Color getTextureColor(const Point& p) const = 0;
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */
