@@ -1,4 +1,4 @@
-Raytracer C++ framework for "Introduction to Computer Graphics"
+﻿Raytracer C++ framework for "Introduction to Computer Graphics"
 ===============================================================
 
 This is a C++ framework for a raytracer. It is created for the Computer
@@ -60,4 +60,6 @@ yaml/*
 Project done by Linda Djerroudi, Stacy Gromat and Mickaël Sereno.
 
 The image generated for the 5th is img.png
-Launch "runme.bat" tu run the project. It will read "scene01.yaml" and generate "img.png". You can also run "Debug/RayTracer.exe" with the common parameters
+Launch "runme.bat" tu run the project and see the file generated
+
+The code use openmp to run things in parallel

@@ -48,7 +48,7 @@ Color Scene::trace(const Ray &ray)
 
 	Color color = Color(0.0, 0.0, 0.0);
 
-	if (mode == PHONG) {
+	if (mode == PHONG || mode == GOOCH) {
 		/****************************************************
 		* This is where you should insert the color
 		* calculation (Phong model).
@@ -66,7 +66,7 @@ Color Scene::trace(const Ray &ray)
 		*        Color*Color        dito
 		*        pow(a,b)           a to the power of b
 		****************************************************/
-		color = phong(obj, V, N, hit);
+		color = renderModel(obj, V, N, hit);
 		Vector reflect = (ray.D -2 * ray.D.dot(N)*N).normalized();
 		color += recursionColor(Ray(hit, reflect), maxRecursionDepth) * material->ks;
 	}
@@ -99,11 +99,59 @@ Color Scene::recursionColor(const Ray& ray, int recursion)
 	Vector V = -ray.D;                             //the view vector
 
 	Vector reflect = (-2 * ray.D.dot(N)*N + ray.D).normalized();
-	Color color = phong(obj, V, N, hit);
+	Color color = renderModel(obj, V, N, hit);
 	
 	if (recursion == 1)
 		return color;
     return color + obj->material->ks * recursionColor(Ray(hit, reflect), recursion - 1);
+}
+
+Color Scene::renderModel(const Object * obj, const Vector & V, const Vector & N, const Point & hit)
+{
+	if (mode == PHONG)
+		return phong(obj, V, N, hit);
+	else if (mode == GOOCH)
+		return gooch(obj, V, N, hit);
+	else
+		return Color();
+}
+
+Color Scene::gooch(const Object* obj, const Vector& V, const Vector& N, const Point& hit)
+{
+	Color color(0.0, 0.0, 0.0);
+	Material* material = obj->material;
+	//Compute phong
+	for (Light* l : lights)
+	{
+
+		Vector L = (l->position - hit).normalized();
+		Vector R = (2 * L.dot(N)*N - L).normalized();
+
+		double distance = (l->position - hit).length();
+		double intensity = 1.0f / (4 * M_PI*distance*distance);
+		intensity = 1.0f;
+
+		Color objColor = obj->getColorAt(hit);
+
+		if (drawShadow)
+		{
+			Ray rayToLight(hit, L);
+			Hit hitToLight(std::numeric_limits<double>::infinity(), Vector());
+			Object* objToLight = findHit(rayToLight, hitToLight);
+
+			if (objToLight && (hit - rayToLight.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
+			{
+				continue;
+			}
+		}
+
+		Triple kcool = Triple(0, 0, goochParam.b) + goochParam.alpha * l->color * material->color * material->kd * intensity;
+		Triple kwarm = Triple(goochParam.y, goochParam.y, 0) + goochParam.beta * l->color * material->color * material->kd * intensity;
+
+		color += kcool * (1.0 - N.dot(L)) / 2.0 + kwarm * (1.0 + N.dot(L)) / 2.0 + l->color * material->ks * pow(fmax(0.0f, R.dot(V)), material->n);
+	}
+	color.clamp();
+	return color;
 }
 
 Color Scene::phong(const Object* obj, const Vector& V, const Vector& N, const Point& hit)
@@ -164,7 +212,7 @@ void Scene::render(Image &img)
 					Ray ray = camera->castRay((x - 1.0 / (2.0 * N) + (x1 + 1.0) / N), (y - 1.0 / (2.0 * N) + (y1 + 1.0) / N));
 					Color col = trace(ray);
 
-					if (mode == PHONG)
+					if (mode == PHONG || mode == GOOCH)
 					{
 						col.clamp();
 					}

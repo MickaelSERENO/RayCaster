@@ -34,6 +34,7 @@ private:
 	bool parseShadow(const YAML::Node& node);
 	renderMode parseRenderMode(const YAML::Node& node);
 	Camera* parseCamera(const YAML::Node& node);
+	GoochParam parseGoochParam(const YAML::Node& node);
 public:
     Raytracer() { }
 

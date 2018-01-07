@@ -156,9 +156,23 @@ renderMode Raytracer::parseRenderMode(const YAML::Node & node)
 	else if (rm == "normal") {
 		return NORMAL;
 	}
+	else if (rm == "gooch") {
+		return GOOCH;
+	}
 	else {
 		return PHONG; //default mode if incorrect
 	}
+}
+
+GoochParam Raytracer::parseGoochParam(const YAML::Node& node)
+{
+	GoochParam param;
+	param.alpha = node["alpha"];
+	param.beta = node["beta"];
+	param.b = node["b"];
+	param.y = node["y"];
+
+	return param;
 }
 
 Camera* Raytracer::parseCamera(const YAML::Node& node)
@@ -215,6 +229,10 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setSupersample(doc["SuperSampling"][0]);
 
 			scene->setCamera(parseCamera(doc["Camera"]));
+
+			const YAML::Node* goochParameters = doc.FindValue("GoochParameters");
+			if (goochParameters)
+				scene->setGoochParams(parseGoochParam(*goochParameters));
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];

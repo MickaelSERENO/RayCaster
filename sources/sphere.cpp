@@ -77,7 +77,7 @@ Color Sphere::getTextureColor(const Point& p) const
 	if (pRadius == 0)
 		return Color(0, 0, 0);
 
-	double phi = acos(afterRot.x / pRadius) / M_PI; //Phi between 0 and 1
+	double phi = acos(afterRot.z / pRadius) / M_PI; //Phi between 0 and 1
 	double theta = (atan2(afterRot.y, afterRot.x) + M_PI) / (2 * M_PI);
 
 	Color c = material->texture->colorAt(theta, phi);

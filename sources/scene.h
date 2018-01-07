@@ -31,8 +31,17 @@
 
 enum renderMode {
 	PHONG,
+	GOOCH,
 	ZBUFFER,
 	NORMAL
+};
+
+struct GoochParam
+{
+	double b = 0.55;
+	double y = 0.3;
+	double alpha = 0.25;
+	double beta = 0.5;
 };
 
 class Scene
@@ -46,12 +55,15 @@ private:
 	int maxRecursionDepth=0;
 	int superSamples = 1;
 	Camera* camera = NULL;
+	GoochParam goochParam;
 public:
 	Object* findHit(const Ray& ray, Hit& hit);
     Color trace(const Ray &ray);
 	Color recursionColor(const Ray& ray, int recursion);
+	Color renderModel(const Object* obj, const Vector& V, const Vector& N, const Point& hit);
 	Color phong(const Object* obj, const Vector& V, const Vector& N, const Point& hit);
-    void render(Image &img);
+	Color gooch(const Object* obj, const Vector& V, const Vector& N, const Point& hit);
+	void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);
     void setEye(Triple e);
@@ -60,6 +72,7 @@ public:
 	void setMaxRecursionDepth(int d);
 	void setSupersample(int s) { superSamples = s; }
 	void setCamera(Camera* c) { camera = c; }
+	void setGoochParams(const GoochParam& param) { goochParam = param; }
 	Camera* getCamera() { return camera; }
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
