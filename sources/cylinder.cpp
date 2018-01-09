@@ -3,7 +3,7 @@
 Cylinder::Cylinder() : Object()
 {}
 
-//Use this : https://www.gamedev.net/forums/topic/467789-raycylinder-intersection/
+//We used this to help us: https://www.gamedev.net/forums/topic/467789-raycylinder-intersection/
 Hit Cylinder::intersect(const Ray& ray)
 {
 	double tCylinder = -1;
