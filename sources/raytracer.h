@@ -22,6 +22,7 @@
 #include "scene.h"
 #include "yaml/yaml.h"
 #include "Camera.h"
+#include "objectLoader.h"
 
 class Raytracer {
 private:
@@ -30,6 +31,7 @@ private:
     // Couple of private functions for parsing YAML nodes
     Material* parseMaterial(const YAML::Node& node);
     Object* parseObject(const YAML::Node& node);
+	ObjectLoader* parseWFObject(const YAML::Node& node);
     Light* parseLight(const YAML::Node& node);
 	bool parseShadow(const YAML::Node& node);
 	renderMode parseRenderMode(const YAML::Node& node);

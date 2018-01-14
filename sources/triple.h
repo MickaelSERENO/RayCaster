@@ -21,6 +21,14 @@ using namespace std;
 
 class Triple {
 public:
+	explicit Triple(const float* a) : x(a[0]), y(a[1]), z(a[2])
+	{
+	}
+
+	explicit Triple(const double* a) : x(a[0]), y(a[1]), z(a[2])
+	{
+	}
+
     explicit Triple(double X = 0, double Y = 0, double Z = 0)
         : x(X), y(Y), z(Z)
     {

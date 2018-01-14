@@ -95,6 +95,8 @@
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
+    <ClCompile Include="MaterialWrapper.cpp" />
+    <ClCompile Include="objectLoader.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -132,7 +134,9 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="material.h" />
+    <ClInclude Include="materialWrapper.h" />
     <ClInclude Include="object.h" />
+    <ClInclude Include="objectLoader.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="scene.h" />

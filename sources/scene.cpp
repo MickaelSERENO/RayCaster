@@ -103,7 +103,7 @@ Color Scene::recursionColor(const Ray& ray, int recursion)
 	
 	if (recursion == 1)
 		return color;
-    return color + obj->material->ks * recursionColor(Ray(hit, reflect), recursion - 1);
+    return color + obj->material->getSpecular() * recursionColor(Ray(hit, reflect), recursion - 1);
 }
 
 Color Scene::renderModel(const Object * obj, const Vector & V, const Vector & N, const Point & hit)
@@ -145,10 +145,10 @@ Color Scene::gooch(const Object* obj, const Vector& V, const Vector& N, const Po
 			}
 		}
 
-		Triple kcool = Triple(0, 0, goochParam.b) + goochParam.alpha * l->color * material->color * material->kd * intensity;
-		Triple kwarm = Triple(goochParam.y, goochParam.y, 0) + goochParam.beta * l->color * material->color * material->kd * intensity;
+		Triple kcool = Triple(0, 0, goochParam.b) + goochParam.alpha * l->color * material->kd * material->getDiffuse() * material->getBase() * intensity;
+		Triple kwarm = Triple(goochParam.y, goochParam.y, 0) + goochParam.beta * l->color * material->kd * material->getDiffuse() * material->getBase() * intensity;
 
-		color += kcool * (1.0 - N.dot(L)) / 2.0 + kwarm * (1.0 + N.dot(L)) / 2.0 + l->color * material->ks * pow(fmax(0.0f, R.dot(V)), material->n);
+		color += kcool * (1.0 - N.dot(L)) / 2.0 + kwarm * (1.0 + N.dot(L)) / 2.0 + l->color * material->ks * material->getSpecular() * pow(fmax(0.0f, R.dot(V)), material->n);
 	}
 	color.clamp();
 	return color;
@@ -161,7 +161,6 @@ Color Scene::phong(const Object* obj, const Vector& V, const Vector& N, const Po
 	//Compute phong
 	for (Light* l : lights)
 	{
-
 		Vector L = (l->position - hit).normalized();
 		Vector R = (2 * L.dot(N)*N - L).normalized();
 
@@ -179,15 +178,15 @@ Color Scene::phong(const Object* obj, const Vector& V, const Vector& N, const Po
 			
 			if (objToLight && (hit - rayToLight.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
 			{
-				color += intensity * l->color * material->ka * objColor;
+				color += intensity * l->color * material->ka * material->getAmbient() * objColor;
 				continue;
 			}
 		}
 
 		color += intensity * l->color * (
-			material->ka * objColor +
-			material->kd * fmax(0.0f, L.dot(N))*objColor +
-			material->ks * pow(fmax(0.0f, R.dot(V)), material->n));
+			material->ka * material->getAmbient() * objColor +
+			material->kd * material->getDiffuse() * objColor * fmax(0.0f, L.dot(N)) +
+			material->ks * material->getSpecular() * pow(fmax(0.0f, R.dot(V)), material->n));
 	}
 	return color;
 }

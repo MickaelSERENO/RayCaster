@@ -49,7 +49,7 @@ Triple parseTriple(const YAML::Node& node)
 
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
-    Material *m = new Material();
+    GeomMaterial *m = new GeomMaterial();
 	
 	//Test if the material contain a texture or not
 	const YAML::Node*texture = node.FindValue("texture");
@@ -67,6 +67,15 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
     node["ks"] >> m->ks;
     node["n"] >> m->n;
     return m;
+}
+
+ObjectLoader* Raytracer::parseWFObject(const YAML::Node& node)
+{
+	Vector defaultOrigin;
+	node["defaultOrigin"] >> defaultOrigin;
+	string path;
+	node["path"] >> path;
+	return new ObjectLoader(path, defaultOrigin);
 }
 
 Object* Raytracer::parseObject(const YAML::Node& node)
@@ -260,6 +269,18 @@ bool Raytracer::readScene(const std::string& inputFilename)
                     cerr << "Warning: found object of unknown type, ignored." << endl;
                 }
             }
+
+			// Read and parse the Wavefront OBJ objects
+			const YAML::Node& sceneWFObjects = doc["WFObjects"];
+			for (YAML::Iterator it = sceneWFObjects.begin(); it != sceneWFObjects.end(); ++it) {
+				ObjectLoader* obj = parseWFObject(*it);
+				// Only add object if it is recognized
+				for(auto& o : obj->getObjDatas())
+				{
+					for(auto& wf : o.second->objects)
+					scene->addObject(wf);
+				}
+			}
 
             // Read and parse light definitions
             const YAML::Node& sceneLights = doc["Lights"];

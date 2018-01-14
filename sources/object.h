@@ -34,8 +34,8 @@ public:
 	virtual Color getColorAt(const Point& p) const
 	{
 		if (material->texture)
-			return getTextureColor(p);
-		return material->color;
+			return getTextureColor(p) * material->getTextureColor();
+		return material->getBase();
 	}
 
 	virtual Color getTextureColor(const Point& p) const = 0;

@@ -13,17 +13,17 @@
 #  it should be clear that the #-character can be used to insert comments.
 
 Camera:
-  eye: [0,0,1000]  
-  center: [0,0,0]
+  eye: [200,200,1000]  
+  center: [200,200,0]
   up: [0,1.0,0.0]
   focalDistance: 1000.0
-  width: 800
-  height: 800
+  width: 400
+  height: 400
 
 
 Shadows: [false]
 
-SuperSampling: [2]
+SuperSampling: [4]
 
 Lights:
 - position: [-200,600,1500]
@@ -34,14 +34,8 @@ MaxRecursionDepth: [0]
 RenderMode: [phong] 
 # phong zbuffer normal
 
+WFObjects:
+  - path: obj.mtl
+    defaultOrigin: [0,0,0]
+
 Objects:
-- type: triangle
-  p1: [0,0,0]
-  p2: [400,0,0]
-  p3: [400,400,0]
-  material: # blue
-    color: [0.0,0.0,1.0]
-    ka: 0.2
-    kd: 0.7
-    ks: 0.5
-    n: 64
