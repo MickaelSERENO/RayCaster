@@ -20,7 +20,6 @@ Camera:
   width: 400
   height: 400
 
-
 Shadows: [false]
 
 SuperSampling: [4]
@@ -35,7 +34,16 @@ RenderMode: [phong]
 # phong zbuffer normal
 
 WFObjects:
-  - path: obj.mtl
+  - path: cube.obj
     defaultOrigin: [0,0,0]
 
 Objects:
+- type: sphere
+  position: [200,200,-1000]
+  radius: 1000
+  material: # grey
+    color: [0.4,0.4,0.4]
+    ka: 0.2
+    kd: 0.8
+    ks: 0
+    n: 1

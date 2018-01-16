@@ -256,10 +256,10 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];
-            if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {
-                cerr << "Error: expected a sequence of objects." << endl;
-                return false;
-            }
+            //if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {
+             //   cerr << "Error: expected a sequence of objects." << endl;
+            //    return false;
+            //}
             for(YAML::Iterator it=sceneObjects.begin();it!=sceneObjects.end();++it) {
                 Object *obj = parseObject(*it);
                 // Only add object if it is recognized
@@ -271,14 +271,18 @@ bool Raytracer::readScene(const std::string& inputFilename)
             }
 
 			// Read and parse the Wavefront OBJ objects
+			std::cout << "parsing Wavefront objects" << std::endl;
 			const YAML::Node& sceneWFObjects = doc["WFObjects"];
 			for (YAML::Iterator it = sceneWFObjects.begin(); it != sceneWFObjects.end(); ++it) {
 				ObjectLoader* obj = parseWFObject(*it);
 				// Only add object if it is recognized
 				for(auto& o : obj->getObjDatas())
 				{
-					for(auto& wf : o.second->objects)
-					scene->addObject(wf);
+					for (auto& wf : o.second->objects)
+					{
+						scene->addObject(wf);
+						std::cout << "obj added" << std::endl;
+					}
 				}
 			}
 

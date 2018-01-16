@@ -3,6 +3,13 @@
 
 ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOrigin)
 {
+	m_defaultMaterial = new GeomMaterial();
+	m_defaultMaterial->color = Color(0.8, 0.8, 0.8);
+	m_defaultMaterial->kd = 0.8;
+	m_defaultMaterial->ka = 0.2;
+	m_defaultMaterial->ks = 0.4;
+	m_defaultMaterial->n = 100;
+
 	std::fstream file(filePath, std::fstream::in);
 
 	//Information for the Transformation::defaultConf
@@ -33,25 +40,28 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 		if(!file.eof())
 		{
 			unsigned int loc;
-			
 			//Replace two spaces by one
 			while ((loc = line.find("  ")) != std::string::npos) //Two spaces here
 				line.replace(loc, 2, " "); //Single space in quotes
 
 			//Comments
-			if (std::regex_match(line, std::regex("^ *#$")))
+			if (std::regex_match(line, std::regex("^ *#.*$")))
+			{
 				continue;
+			}
 		}
 
-		if(std::regex_match(line, std::regex("^o ")))
+		if(strstr(line.c_str(), "o ") == line.c_str())
 		{
 			currentDatas = new OBJDatas();
-			m_objDatas.insert(std::pair<std::string, OBJDatas*>(split(line, ' ')[0], currentDatas));
+			m_objDatas.insert(std::pair<std::string, OBJDatas*>(split(line, ' ')[1], currentDatas));
 			currentDatas->insertNewObj(new OBJWF());
+			parseObj = false;
+			currentMaterialInit = false;
 		}
 
 		//Init the material file
-		else if (std::regex_match(line, std::regex("^mtllib ")))
+		else if (strstr(line.c_str(), "mtllib ") == line.c_str())
 		{
 			std::vector<std::string> pathSplited = split(filePath, '/');
 			std::string path = "";
@@ -65,43 +75,44 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 			m_mtlWrapper.insert(std::pair<std::string, MaterialWrapper*>(mtlName, currentDatas->mtlWrapper));
 		}
 
-		else if (std::regex_match(line, std::regex("^usemtl ")))
+		else if (strstr(line.c_str(), "usemtl ") == line.c_str())
 		{
-			currentMaterialInit = true;
-			currentMaterial = split(line, ' ')[1];
-			currentDatas->lastObj->material = currentDatas->mtlWrapper->getMaterial(currentMaterial);
-			parseObj = true;
-
+			if (currentMaterialInit)
+				parseObj = true;
+			if (split(line, ' ')[1] == "Mat")
+				currentDatas->lastObj->material = m_defaultMaterial;
+			else
+			{
+				currentMaterialInit = true;
+				currentMaterial = split(line, ' ')[1];
+				currentDatas->lastObj->material = currentDatas->mtlWrapper->getMaterial(currentMaterial);
+			}
 		}
 
-		else if (std::regex_match(line, std::regex("^v ")))
-		{
-			std::vector<std::string> pointValues = split(line, ' ');
-			for (unsigned int i = 1; i < pointValues.size(); i++)
-				vertexPosition.push_back(atoi(pointValues[i].c_str()));
-		}
-
-		else if (std::regex_match(line, std::regex("^vn ")))
+		else if (strstr(line.c_str(), "v ") == line.c_str())
 		{
 			std::vector<std::string> pointValues = split(line, ' ');
 			for (unsigned int i = 1; i < pointValues.size(); i++)
-				vertexNormal.push_back(atoi(pointValues[i].c_str()));
+				vertexPosition.push_back(atof(pointValues[i].c_str()));
 		}
 
-		else if (std::regex_match(line, std::regex("^f ")))
+		else if (strstr(line.c_str(), "vn ") == line.c_str())
+		{
+			std::vector<std::string> pointValues = split(line, ' ');
+			for (unsigned int i = 1; i < pointValues.size(); i++)
+				vertexNormal.push_back(atof(pointValues[i].c_str()));
+		}
+
+		else if (strstr(line.c_str(), "f ") == line.c_str())
 		{
 			std::vector<std::string> faceValue = split(line, ' ');
-			for (unsigned int i = 0; i < faceValue.size(); i++)
+			for (unsigned int i = 1; i < faceValue.size(); i++)
 			{
-				std::vector<std::string> orderValue = split(faceValue[i], '/');
-				for (unsigned int j = 0; j < orderValue.size(); j++)
+				if (faceValue[i] != "")
 				{
-					if (orderValue[j] == "")
-						continue;
-					if (j == 0)
-						vertexDrawOrder.push_back(atoi(orderValue[j].c_str()));
-					else if (j == 2)
-						vertexNormalOrder.push_back(atoi(orderValue[j].c_str()));
+					std::vector<std::string> orderValue = split(faceValue[i], '/');
+					vertexDrawOrder.push_back(atoi(orderValue[0].c_str()));
+					vertexNormalOrder.push_back(atoi(orderValue[2].c_str()));
 				}
 			}
 		}
@@ -123,14 +134,14 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 				for (unsigned int i = 0; i < vertexDrawOrder.size(); i++)
 				{
 					//Store the vertex position get by the order in the vertexPositionArray
-					int offset = vertexDrawOrder[i] * COORDS_PER_VERTEX;
+					int offset = (vertexDrawOrder[i] - 1) * COORDS_PER_VERTEX;
 					for (uint32_t j = 0; j < COORDS_PER_VERTEX; j++)
 						vertexPositionArray[COORDS_PER_VERTEX*i + j] = vertexPosition[offset + j];
 				}
 
 				for (unsigned int i = 0; i < vertexNormalOrder.size(); i++)
 				{
-					int offset = vertexNormalOrder[i] * COORDS_PER_VERTEX;
+					int offset = (vertexNormalOrder[i] - 1) * COORDS_PER_VERTEX;
 					for (int j = 0; j < COORDS_PER_VERTEX; j++)
 						vertexNormalArray[COORDS_PER_VERTEX*i + j] = vertexNormal[offset + j];
 				}
@@ -155,8 +166,7 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 				vertexDrawOrder = std::vector<int>();
 				vertexNormalOrder = std::vector<int>();
 				materialSerie = std::map<std::string, int>();
-				faceSerie = 0;
-				currentMaterialInit = false;
+				parseObj = false;
 
 				currentDatas->insertNewObj(new OBJWF());
 			}

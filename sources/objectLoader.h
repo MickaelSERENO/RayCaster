@@ -70,5 +70,6 @@ public:
 private:
 	std::map<std::string, MaterialWrapper*> m_mtlWrapper;
 	std::map<std::string, OBJDatas*> m_objDatas;
+	GeomMaterial* m_defaultMaterial;
 };
 
