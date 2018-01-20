@@ -7,7 +7,7 @@
 #include "object.h"
 #include "stdlib.h"
 #include "materialWrapper.h"
-#include "Triangle.h"
+#include "triangle.h"
 #include <sstream>
 #include <istream>
 #include <fstream>
@@ -31,8 +31,8 @@ public:
 		Hit currentHit = Hit::NO_HIT();
 		for (int i = 0; i < nbTriangles; i++)
 		{
-			Hit tHit = triangles[i].intersect(ray);
-			if (currentHit.no_hit || currentHit.t > tHit.t)
+			Hit tHit(triangles[i].intersect(ray));
+			if (tHit.t < currentHit.t || currentHit.no_hit)
 				currentHit = tHit;
 		}
 		return currentHit;
@@ -64,7 +64,7 @@ public:
 class ObjectLoader
 {
 public:
-	ObjectLoader(const std::string& filePath, const Vector& defaultOrigin);
+	ObjectLoader(const std::string& filePath, const Vector& defaultOrigin, double scale);
 	~ObjectLoader();
 	std::map<std::string, OBJDatas*>& getObjDatas() { return m_objDatas; }
 private:

@@ -1,10 +1,10 @@
 #include "objectLoader.h"
 #include <string>
 
-ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOrigin)
+ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOrigin, double scale)
 {
 	m_defaultMaterial = new GeomMaterial();
-	m_defaultMaterial->color = Color(0.8, 0.8, 0.8);
+	m_defaultMaterial->color = Color(0.7, 0.7, 0.7);
 	m_defaultMaterial->kd = 0.8;
 	m_defaultMaterial->ka = 0.2;
 	m_defaultMaterial->ks = 0.4;
@@ -39,15 +39,11 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 
 		if(!file.eof())
 		{
-			unsigned int loc;
-			//Replace two spaces by one
-			while ((loc = line.find("  ")) != std::string::npos) //Two spaces here
-				line.replace(loc, 2, " "); //Single space in quotes
-
-			//Comments
-			if (std::regex_match(line, std::regex("^ *#.*$")))
+			int loc = line.find("  ");
+			while(loc != std::string::npos)
 			{
-				continue;
+				line.replace(loc, 2, " "); //Single space in quotes
+				loc = line.find("  ");
 			}
 		}
 
@@ -61,7 +57,7 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 		}
 
 		//Init the material file
-		else if (strstr(line.c_str(), "mtllib ") == line.c_str())
+		else if(strstr(line.c_str(), "mtllib ") == line.c_str())
 		{
 			std::vector<std::string> pathSplited = split(filePath, '/');
 			std::string path = "";
@@ -96,7 +92,7 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 				vertexPosition.push_back(atof(pointValues[i].c_str()));
 		}
 
-		else if (strstr(line.c_str(), "vn ") == line.c_str())
+		else if(strstr(line.c_str(), "vn ") == line.c_str())
 		{
 			std::vector<std::string> pointValues = split(line, ' ');
 			for (unsigned int i = 1; i < pointValues.size(); i++)
@@ -108,19 +104,17 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 			std::vector<std::string> faceValue = split(line, ' ');
 			for (unsigned int i = 1; i < faceValue.size(); i++)
 			{
-				if (faceValue[i] != "")
-				{
-					std::vector<std::string> orderValue = split(faceValue[i], '/');
-					vertexDrawOrder.push_back(atoi(orderValue[0].c_str()));
+				std::vector<std::string> orderValue = split(faceValue[i], '/');
+				vertexDrawOrder.push_back(atoi(orderValue[0].c_str()));
+				if(orderValue.size() == 3)
 					vertexNormalOrder.push_back(atoi(orderValue[2].c_str()));
-				}
 			}
 		}
 
 
 		if (parseObj || file.eof())
 		{
-			if (currentDatas && currentDatas->lastObj)
+			if (currentDatas && currentDatas->lastObj && vertexDrawOrder.size() > 0)
 			{
 				int vertexPositionLength = COORDS_PER_VERTEX * vertexDrawOrder.size();
 				int vertexNormalLength = COORDS_PER_VERTEX * vertexNormalOrder.size();
@@ -148,13 +142,13 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 
 				//Create the triangles
 				OBJWF* obj = currentDatas->lastObj;
-				obj->triangles = (Triangle*)malloc(sizeof(Triangle) * vertexPositionLength / 9);
 				obj->nbTriangles = vertexPositionLength / 9;
-				for (uint32_t i = 0; i < vertexPositionLength / 9; i++)
+				obj->triangles = new Triangle[obj->nbTriangles];
+				for (uint32_t i = 0; i < obj->nbTriangles; i++)
 				{
-					obj->triangles[i].p1 = Vector(vertexPositionArray[9 * i + 0], vertexPositionArray[9 * i + 1], vertexPositionArray[9 * i + 2]) + defaultOrigin;
-					obj->triangles[i].p2 = Vector(vertexPositionArray[9 * i + 3], vertexPositionArray[9 * i + 4], vertexPositionArray[9 * i + 5]) + defaultOrigin;
-					obj->triangles[i].p3 = Vector(vertexPositionArray[9 * i + 6], vertexPositionArray[9 * i + 7], vertexPositionArray[9 * i + 8]) + defaultOrigin;
+					obj->triangles[i].p1 = scale*Vector(vertexPositionArray[9 * i + 0], vertexPositionArray[9 * i + 1], vertexPositionArray[9 * i + 2]) + defaultOrigin;
+					obj->triangles[i].p3 = scale*Vector(vertexPositionArray[9 * i + 3], vertexPositionArray[9 * i + 4], vertexPositionArray[9 * i + 5]) + defaultOrigin;
+					obj->triangles[i].p2 = scale*Vector(vertexPositionArray[9 * i + 6], vertexPositionArray[9 * i + 7], vertexPositionArray[9 * i + 8]) + defaultOrigin;
 				}
 			}
 

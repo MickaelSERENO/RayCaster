@@ -7,7 +7,8 @@
 ### MACROS
 
 # GNU (everywhere)
-CPP = g++ -g -Wall
+#CPP = g++ -O3 -Wall -fopenmp
+CPP = g++ -g -Wall -fopenmp
 
 # GNU (faster)
 #CPP = g++ -O5 -Wall -fomit-frame-pointer -ffast-math 
@@ -17,7 +18,8 @@ LIBS = -lm
 EXECUTABLE = ray
 
 OBJS = main.o raytracer.o sphere.o light.o material.o \
-	image.o triple.o lodepng.o scene.o cylinder.o cube.o quaternion.o
+	image.o triple.o lodepng.o scene.o cylinder.o cube.o quaternion.o \
+	triangle.o objectLoader.o MaterialWrapper.o camera.o
 
 YAMLOBJS = $(subst .cpp,.o,$(wildcard yaml/*.cpp))
 

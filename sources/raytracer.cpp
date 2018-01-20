@@ -71,11 +71,13 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 
 ObjectLoader* Raytracer::parseWFObject(const YAML::Node& node)
 {
+	double scale;
+	node["scale"] >> scale;
 	Vector defaultOrigin;
 	node["defaultOrigin"] >> defaultOrigin;
 	string path;
 	node["path"] >> path;
-	return new ObjectLoader(path, defaultOrigin);
+	return new ObjectLoader(path, defaultOrigin, scale);
 }
 
 Object* Raytracer::parseObject(const YAML::Node& node)
@@ -255,40 +257,52 @@ bool Raytracer::readScene(const std::string& inputFilename)
 				scene->setGoochParams(parseGoochParam(*goochParameters));
 
             // Read and parse the scene objects
-            const YAML::Node& sceneObjects = doc["Objects"];
-            //if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {
-             //   cerr << "Error: expected a sequence of objects." << endl;
-            //    return false;
-            //}
-            for(YAML::Iterator it=sceneObjects.begin();it!=sceneObjects.end();++it) {
-                Object *obj = parseObject(*it);
-                // Only add object if it is recognized
-                if (obj) {
-                    scene->addObject(obj);
-                } else {
-                    cerr << "Warning: found object of unknown type, ignored." << endl;
-                }
-            }
+            const YAML::Node* sceneObjects = doc.FindValue("Objects");
+			if(sceneObjects != NULL)
+			{
+				//if (sceneObjects->GetType() != YAML::CT_SEQUENCE) {
+				 //   cerr << "Error: expected a sequence of objects." << endl;
+				//    return false;
+				//}
+				for(YAML::Iterator it=sceneObjects->begin();it!=sceneObjects->end();++it) {
+					Object *obj = parseObject(*it);
+					// Only add object if it is recognized
+					if (obj) {
+						scene->addObject(obj);
+					} else {
+						cerr << "Warning: found object of unknown type, ignored." << endl;
+					}
+				}
+			}
+			
 
 			// Read and parse the Wavefront OBJ objects
-			std::cout << "parsing Wavefront objects" << std::endl;
-			const YAML::Node& sceneWFObjects = doc["WFObjects"];
-			for (YAML::Iterator it = sceneWFObjects.begin(); it != sceneWFObjects.end(); ++it) {
-				ObjectLoader* obj = parseWFObject(*it);
-				// Only add object if it is recognized
-				for(auto& o : obj->getObjDatas())
-				{
-					for (auto& wf : o.second->objects)
+  			std::cout << "parsing Wavefront objects" << std::endl;
+			const YAML::Node* sceneWFObjects = doc.FindValue("WFObjects");
+			if(sceneWFObjects != NULL)
+			{
+				//if (sceneWFObjects->GetType() != YAML::CT_SEQUENCE) {
+				 //   cerr << "Error: expected a sequence of objects." << endl;
+				//    return false;
+				//}
+				for (YAML::Iterator it = sceneWFObjects->begin(); it != sceneWFObjects->end(); ++it) {
+					ObjectLoader* obj = parseWFObject(*it);
+					// Only add object if it is recognized
+					for(auto& o : obj->getObjDatas())
 					{
-						scene->addObject(wf);
-						std::cout << "obj added" << std::endl;
+						for (auto& wf : o.second->objects)
+						{
+							scene->addObject(wf);
+							std::cout << "obj added" << std::endl;
+						}
 					}
 				}
 			}
 
+
             // Read and parse light definitions
             const YAML::Node& sceneLights = doc["Lights"];
-            if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {
+            if (sceneLights.GetType() != YAML::CT_SEQUENCE) {
                 cerr << "Error: expected a sequence of lights." << endl;
                 return false;
             }

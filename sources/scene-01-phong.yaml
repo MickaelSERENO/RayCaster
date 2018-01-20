@@ -17,33 +17,45 @@ Camera:
   center: [200,200,0]
   up: [0,1.0,0.0]
   focalDistance: 1000.0
-  width: 400
-  height: 400
+  width: 800
+  height: 800
 
-Shadows: [false]
+Shadows: [true]
 
-SuperSampling: [4]
+SuperSampling: [2]
 
 Lights:
 - position: [-200,600,1500]
   color: [1.0,1.0,1.0]
   
-MaxRecursionDepth: [0]
+MaxRecursionDepth: [2]
 
 RenderMode: [phong] 
 # phong zbuffer normal
 
 WFObjects:
-  - path: cube.obj
-    defaultOrigin: [0,0,0]
+  - path: cat.obj
+    defaultOrigin: [50,50,0]
+    scale : 0.4
 
 Objects:
 - type: sphere
-  position: [200,200,-1000]
+  position: [200,200,-2000]
   radius: 1000
   material: # grey
     color: [0.4,0.4,0.4]
     ka: 0.2
     kd: 0.8
     ks: 0
+    n: 4
+
+- type: sphere
+  position: [300,50,-100]
+  radius: 50
+  material: # red
+    texture: ball.png
+    color: [0.8,0.0,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.3
     n: 1

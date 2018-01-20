@@ -1,7 +1,7 @@
 #pragma once
 #include "object.h"
 
-#define SIGN(x) ((x < 0) ? -1 : 1)
+#define SIGN(x) ((x > 0) ? 1 : -1)
 
 class Triangle : public Object
 {
