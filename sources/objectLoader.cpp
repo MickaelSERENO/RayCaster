@@ -27,6 +27,7 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 	int faceSerie = 0; //The serie of the material
 
 	std::string currentMaterial; //the current material key
+	MaterialWrapper* currentMaterialWrapper = NULL;
 
 	bool currentMaterialInit = false;
 	OBJDatas* currentDatas = NULL;
@@ -47,13 +48,15 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 			}
 		}
 
-		if(strstr(line.c_str(), "o ") == line.c_str())
+		if(strstr(line.c_str(), "o ") == line.c_str() || strstr(line.c_str(), "g ") == line.c_str())
 		{
 			currentDatas = new OBJDatas();
 			m_objDatas.insert(std::pair<std::string, OBJDatas*>(split(line, ' ')[1], currentDatas));
 			currentDatas->insertNewObj(new OBJWF());
 			parseObj = false;
 			currentMaterialInit = false;
+			if (currentMaterialWrapper)
+				currentDatas->mtlWrapper = currentMaterialWrapper;
 		}
 
 		//Init the material file
@@ -67,15 +70,17 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 			std::string mtlName = split(line, ' ')[1];
 			path += mtlName;
 
-			currentDatas->mtlWrapper = new MaterialWrapper(path);
-			m_mtlWrapper.insert(std::pair<std::string, MaterialWrapper*>(mtlName, currentDatas->mtlWrapper));
+			currentMaterialWrapper = new MaterialWrapper(path);
+			m_mtlWrapper.insert(std::pair<std::string, MaterialWrapper*>(mtlName, currentMaterialWrapper));
+			if (currentDatas)
+				currentDatas->mtlWrapper = currentMaterialWrapper;
 		}
 
 		else if (strstr(line.c_str(), "usemtl ") == line.c_str())
 		{
 			if (currentMaterialInit)
 				parseObj = true;
-			if (split(line, ' ')[1] == "Mat")
+			if (split(line, ' ')[1] == "None")
 				currentDatas->lastObj->material = m_defaultMaterial;
 			else
 			{
@@ -156,14 +161,11 @@ ObjectLoader::ObjectLoader(const std::string& filePath, const Vector& defaultOri
 				break;
 
 			//reinit the vertex
-			{
-				vertexDrawOrder = std::vector<int>();
-				vertexNormalOrder = std::vector<int>();
-				materialSerie = std::map<std::string, int>();
-				parseObj = false;
-
+			parseObj = false;
+			vertexDrawOrder.clear();
+			vertexNormalOrder.clear();
+			if(vertexDrawOrder.size() > 0)
 				currentDatas->insertNewObj(new OBJWF());
-			}
 		}
 	}
 

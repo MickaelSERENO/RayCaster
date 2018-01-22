@@ -24,7 +24,7 @@ Object* Scene::findHit(const Ray& ray, Hit& hit)
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
 		Hit tempHit(objects[i]->intersect(ray));
-		if (tempHit.t<hit.t && tempHit.N.dot(-ray.D) >= 0)
+		if (tempHit.t<hit.t && tempHit.t >= 0.01)
 		{
 			hit = tempHit;
 			obj = objects[i];
@@ -176,7 +176,7 @@ Color Scene::phong(const Object* obj, const Vector& V, const Vector& N, const Po
 			Hit hitToLight(std::numeric_limits<double>::infinity(), Vector());
 			Object* objToLight = findHit(rayToLight, hitToLight);
 			
-			if (objToLight && (hit - rayToLight.at(hitToLight.t)).length_2() < (hit - l->position).length_2())
+			if (objToLight && (hit - rayToLight.at(hitToLight.t)).length_2()+0.001 < (hit - l->position).length_2())
 			{
 				color += intensity * l->color * material->ka * material->getAmbient() * objColor;
 				continue;
@@ -198,8 +198,8 @@ void Scene::render(Image &img)
     int w = img.width();
     int h = img.height();
 
-	#pragma omp parallel for
     for (int y = 0; y < camera->getHeight(); y++) {
+		#pragma omp parallel for
         for (int x = 0; x < camera->getWidth(); x++) {
 
 			Color pixColor(0, 0, 0);
@@ -228,12 +228,13 @@ void Scene::render(Image &img)
 
 					pixColor = pixColor + col;
 				}
-			}
+ 			}
 
 			pixColor = pixColor / (N*N);
 
             img(x,y) = pixColor;
         }
+		std::cout << "column " << y << " done" << std::endl;
     }
 
 	//Readapt the range of colors

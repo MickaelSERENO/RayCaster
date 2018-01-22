@@ -76,6 +76,8 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)RayTracer.exe</OutputFile>
